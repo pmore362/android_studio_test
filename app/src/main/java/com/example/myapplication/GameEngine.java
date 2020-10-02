@@ -2,6 +2,8 @@ package com.example.myapplication;
 
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -17,7 +19,7 @@ public class GameEngine extends SurfaceView implements Runnable {
     Canvas mCanvas;
     SurfaceHolder mHolder;
     Paint mPaint;
-
+    private boolean initiate_loop = false;
     long mFps;
     private final int MILLIS_IN_SECOND = 1000;
 
@@ -33,6 +35,12 @@ public class GameEngine extends SurfaceView implements Runnable {
     private Ball mBall;
     private Ball prev;
     ArrayList ball = new ArrayList();
+
+    //setting icon test-drive.
+    Bitmap bitmap, result;
+
+
+
     public GameEngine(Context context, int x, int y){
 
         super(context);
@@ -42,6 +50,8 @@ public class GameEngine extends SurfaceView implements Runnable {
 
         radius = mScreenX / 8;
 
+        bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.setting);
+        result = Bitmap.createScaledBitmap(bitmap, radius/2, radius/2, false);
         mHolder = getHolder();
         mPaint = new Paint();
 
@@ -85,6 +95,8 @@ public class GameEngine extends SurfaceView implements Runnable {
             mBall = new Ball(mScreenX / 2);
             ball.add(mBall);
         }
+        initiate_loop = true;
+        resume();
         //Log.v("method", "inside a startNewGame Method");
     }
 
@@ -105,7 +117,7 @@ public class GameEngine extends SurfaceView implements Runnable {
            }
 
             //mPaint.setColor(Color.argb(255,255,255,255));
-
+            mCanvas.drawBitmap(result, 0,0, null);
             mCanvas.drawText("Works", mScreenX / 2,mScreenY/2, mPaint);
             mHolder.unlockCanvasAndPost(mCanvas);
         }
@@ -114,6 +126,7 @@ public class GameEngine extends SurfaceView implements Runnable {
 
     void pause(){
         mPlaying = false;
+        mPaused = true;
         try{
             mThread.join();
         }catch(InterruptedException e){
@@ -124,11 +137,14 @@ public class GameEngine extends SurfaceView implements Runnable {
 
     void resume(){
         //resumeTimer();
-        mPlaying = true;
-        mThread = new Thread(this);
-        mThread.start();
-        //Log.v("method", "inside a resume method");
+        if(initiate_loop) {
+            mPlaying = true;
+            mThread = new Thread(this);
+            mThread.start();
+            //Log.v("method", "inside a resume method");
+        }
     }
+
 
     void resumeTimer() {
         Log.v("message", "inside resume timer");
@@ -175,6 +191,9 @@ public class GameEngine extends SurfaceView implements Runnable {
                 int x = (int) event.getX();
                 int y = (int) event.getY();
                 //Log.v("value", ""+x+y);
+                if((x >0 && y > 0) && (x < (int)radius / 2 && y < (int) radius / 2)){
+                    mCanvas.drawText(" Damn Works", mScreenX / 2,mScreenY/2, mPaint);
+                }
                 for(int i =0; i < ball.size(); i++){
                     mBall = (Ball) ball.get(i);
                     //Log.v("inside a for loop"," method");
