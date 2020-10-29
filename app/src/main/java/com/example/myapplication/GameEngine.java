@@ -1,9 +1,6 @@
 package com.example.myapplication;
 
-import android.content.AbstractThreadedSyncAdapter;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,6 +10,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.os.CountDownTimer;
 import java.util.ArrayList;
+import android.view.KeyEvent;
 
 public class GameEngine extends SurfaceView implements Runnable {
 
@@ -37,7 +35,7 @@ public class GameEngine extends SurfaceView implements Runnable {
     ArrayList ball = new ArrayList();
 
     //setting icon test-drive.
-    Bitmap bitmap, result;
+    //Bitmap bitmap, result;
 
 
 
@@ -50,13 +48,20 @@ public class GameEngine extends SurfaceView implements Runnable {
 
         radius = mScreenX / 8;
 
-        bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.setting);
-        result = Bitmap.createScaledBitmap(bitmap, radius/2, radius/2, false);
+        //bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.setting);
+        //result = Bitmap.createScaledBitmap(bitmap, radius/2, radius/2, false);
         mHolder = getHolder();
         mPaint = new Paint();
 
         //startNewGame();
 
+    }
+    @Override
+     public boolean onKeyDown(int keyCode, KeyEvent event){
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            mPaused = true;
+        }
+        return mPaused;
     }
     @Override
     public void run() {
@@ -81,11 +86,21 @@ public class GameEngine extends SurfaceView implements Runnable {
             }
 
 
+
            /* long timeThisFrame = System.currentTimeMillis() - frameTime;
             if(timeThisFrame > 0){
                 mFps = MILLIS_IN_SECOND / timeThisFrame;
             }*/
         }
+
+    }
+
+    void drawPause(){
+
+            //Log.v("method","inside a drawPause method.");
+            mPaint.setColor(Color.rgb(204,0,51));
+            mCanvas.drawText(" Damn Works", mScreenX / 2,mScreenY/2, mPaint);
+
 
     }
 
@@ -115,10 +130,13 @@ public class GameEngine extends SurfaceView implements Runnable {
                mBall = (Ball) ball.get(i);
                mCanvas.drawCircle(mBall.location.x, mBall.location.y, radius, mPaint);
            }
+            if(mPaused){
 
+                drawPause();
+            }
             //mPaint.setColor(Color.argb(255,255,255,255));
-            mCanvas.drawBitmap(result, 0,0, null);
-            mCanvas.drawText("Works", mScreenX / 2,mScreenY/2, mPaint);
+            //mCanvas.drawBitmap(result, 0,0, null);
+            //mCanvas.drawText("Works", mScreenX / 2,mScreenY/2, mPaint);
             mHolder.unlockCanvasAndPost(mCanvas);
         }
         //Log.v("method","end of draw method");
@@ -191,9 +209,9 @@ public class GameEngine extends SurfaceView implements Runnable {
                 int x = (int) event.getX();
                 int y = (int) event.getY();
                 //Log.v("value", ""+x+y);
-                if((x >0 && y > 0) && (x < (int)radius / 2 && y < (int) radius / 2)){
+                /*if((x >0 && y > 0) && (x < (int)radius / 2 && y < (int) radius / 2)){
                     mCanvas.drawText(" Damn Works", mScreenX / 2,mScreenY/2, mPaint);
-                }
+                }*/
                 for(int i =0; i < ball.size(); i++){
                     mBall = (Ball) ball.get(i);
                     //Log.v("inside a for loop"," method");
@@ -205,6 +223,7 @@ public class GameEngine extends SurfaceView implements Runnable {
                         }
                     }
                 }
+                Log.v("paused", "done.");
                 break;
 
             case MotionEvent.ACTION_MOVE:
